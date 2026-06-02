@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dave Stoddard's Auto Service / Nepean Kanata Rustcheck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a6fa3;
+    --blue-dark: #0d4f7a;
+    --blue-light: #2a8dcc;
+    --cream: #f2ede4;
+    --cream-dark: #e8e0d0;
+    --navy: #0b2d45;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #5a6a78;
+    --accent: #c8963c;
+    --border: #c5d5e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--navy);
+    border-bottom: 3px solid var(--blue);
+    padding: 0 40px;
+    height: 68px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 1.15rem;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .nav-logo span { color: var(--blue-light); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--cream); text-decoration: none;
+    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em;
+    text-transform: uppercase; opacity: 0.85;
+    transition: opacity 0.2s, color 0.2s;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--blue-light); }
+  .nav-cta {
+    background: var(--blue); color: var(--white) !important;
+    padding: 8px 20px; border-radius: 4px; opacity: 1 !important;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--blue-light) !important; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--cream); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: var(--navy);
+    display: flex; align-items: center;
+    padding-top: 68px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(90deg, rgba(26,111,163,0.03) 0px, rgba(26,111,163,0.03) 1px, transparent 1px, transparent 80px),
+      repeating-linear-gradient(0deg, rgba(26,111,163,0.03) 0px, rgba(26,111,163,0.03) 1px, transparent 1px, transparent 80px);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(26,111,163,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto; padding: 80px 40px;
+    display: grid; grid-template-columns: 1fr 420px; gap: 80px; align-items: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(26,111,163,0.2);
+    border: 1px solid rgba(26,111,163,0.4);
+    color: var(--blue-light); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 28px;
+  }
+  .hero-badge::before { content: '★'; font-size: 0.7rem; }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    font-weight: 900; color: var(--cream);
+    line-height: 1.08; margin-bottom: 24px;
+  }
+  .hero h1 em { color: var(--blue-light); font-style: normal; }
+  .hero-sub {
+    font-size: 1.1rem; color: rgba(242,237,228,0.7);
+    line-height: 1.65; margin-bottom: 40px; max-width: 500px;
+  }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--blue); color: var(--white);
+    padding: 14px 32px; border-radius: 6px;
+    font-size: 0.95rem; font-weight: 600;
+    text-decoration: none; display: inline-block;
+    transition: background 0.2s, transform 0.15s;
+    border: 2px solid var(--blue);
+  }
+  .btn-primary:hover { background: var(--blue-light); border-color: var(--blue-light); transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent; color: var(--cream);
+    padding: 14px 32px; border-radius: 6px;
+    font-size: 0.95rem; font-weight: 600;
+    text-decoration: none; display: inline-block;
+    border: 2px solid rgba(242,237,228,0.3);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .btn-outline:hover { border-color: var(--cream); transform: translateY(-2px); }
+
+  .hero-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 56px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(26,111,163,0.25);
+    border-radius: 8px; padding: 20px;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900;
+    color: var(--blue-light); line-height: 1;
+  }
+  .stat-label { font-size: 0.8rem; color: rgba(242,237,228,0.55); margin-top: 4px; letter-spacing: 0.04em; }
+
+  /* HERO CARD */
+  .hero-card {
+    background: var(--cream);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .hero-card-header {
+    background: var(--blue-dark); padding: 24px 28px;
+    border-bottom: 3px solid var(--blue);
+  }
+  .hero-card-header h3 {
+    font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700;
+    color: var(--cream); margin-bottom: 4px;
+  }
+  .hero-card-header p { font-size: 0.8rem; color: rgba(242,237,228,0.6); }
+  .hero-card-body { padding: 28px; }
+  .hours-list { list-style: none; }
+  .hours-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--cream-dark);
+    font-size: 0.88rem;
+  }
+  .hours-list li:last-child { border-bottom: none; }
+  .day-name { font-weight: 600; color: var(--navy); }
+  .day-hours { color: var(--text-muted); }
+  .day-closed { color: #c0392b; font-weight: 600; }
+  .day-today .day-name { color: var(--blue); }
+  .today-badge {
+    font-size: 0.68rem; background: var(--blue); color: white;
+    padding: 2px 7px; border-radius: 100px; margin-left: 8px; font-weight: 600;
+  }
+  .call-block {
+    margin-top: 20px; background: var(--navy);
+    border-radius: 10px; padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .call-icon {
+    width: 44px; height: 44px; background: var(--blue);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .call-block a {
+    font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700;
+    color: var(--cream); text-decoration: none; display: block; line-height: 1.2;
+  }
+  .call-block span { font-size: 0.75rem; color: rgba(242,237,228,0.5); }
+
+  /* TRUST BAR */
+  .trust-bar {
+    background: var(--blue-dark);
+    padding: 18px 40px;
+    display: flex; justify-content: center; gap: 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .trust-item {
+    display: flex; align-items: center; gap: 10px;
+    color: rgba(242,237,228,0.75); font-size: 0.82rem; font-weight: 500;
+  }
+  .trust-item span:first-child { font-size: 1.1rem; }
+
+  /* SECTIONS */
+  section { padding: 100px 40px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 900; color: var(--navy); line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1.05rem; color: var(--text-muted); max-width: 560px; line-height: 1.65;
+  }
+
+  /* SERVICES */
+  #services { background: var(--white); }
+  .services-header { margin-bottom: 60px; }
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  .service-card {
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px 28px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--blue); transform: scaleX(0);
+    transform-origin: left; transition: transform 0.3s;
+  }
+  .service-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(13,79,122,0.12); border-color: var(--blue-light); }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    width: 52px; height: 52px; background: var(--navy);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 20px;
+  }
+  .service-card h3 {
+    font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600;
+    color: var(--navy); margin-bottom: 10px;
+  }
+  .service-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* RUSTCHECK HIGHLIGHT */
+  .rustcheck-section {
+    background: var(--navy);
+    padding: 80px 40px;
+  }
+  .rustcheck-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .rustcheck-inner .section-title { color: var(--cream); }
+  .rustcheck-inner .section-sub { color: rgba(242,237,228,0.65); }
+  .rust-features { margin-top: 36px; display: flex; flex-direction: column; gap: 16px; }
+  .rust-feature {
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .rust-dot {
+    width: 22px; height: 22px; background: var(--blue); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px; font-size: 0.65rem; color: white;
+  }
+  .rust-feature h4 { font-size: 0.95rem; font-weight: 600; color: var(--cream); margin-bottom: 3px; }
+  .rust-feature p { font-size: 0.84rem; color: rgba(242,237,228,0.55); line-height: 1.5; }
+  .rustcheck-visual {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(26,111,163,0.3);
+    border-radius: 16px; padding: 40px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .rust-big-icon { font-size: 5rem; margin-bottom: 24px; }
+  .rustcheck-visual h3 {
+    font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700;
+    color: var(--cream); margin-bottom: 12px;
+  }
+  .rustcheck-visual p { font-size: 0.9rem; color: rgba(242,237,228,0.6); line-height: 1.6; }
+  .rust-badge {
+    margin-top: 24px; background: var(--blue); color: white;
+    padding: 10px 24px; border-radius: 100px; font-size: 0.82rem; font-weight: 600;
+  }
+
+  /* BOOKING */
+  #booking { background: var(--cream); }
+  .booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; margin-top: 60px; }
+  .booking-info h3 {
+    font-family: 'Source Serif 4', serif; font-size: 1.1rem; font-weight: 600;
+    color: var(--navy); margin-bottom: 20px;
+  }
+  .info-steps { display: flex; flex-direction: column; gap: 20px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step-num {
+    width: 36px; height: 36px; background: var(--blue); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  }
+  .step h4 { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+  .step p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; }
+
+  .booking-form {
+    background: var(--white); border-radius: 16px;
+    padding: 40px; border: 1px solid var(--border);
+    box-shadow: 0 10px 40px rgba(13,79,122,0.08);
+  }
+  .booking-form h3 {
+    font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700;
+    color: var(--navy); margin-bottom: 6px;
+  }
+  .booking-form > p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 28px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-size: 0.8rem; font-weight: 600;
+    color: var(--navy); margin-bottom: 6px; letter-spacing: 0.03em;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text);
+    background: var(--cream); outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--blue);
+  }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .form-submit {
+    width: 100%; padding: 14px;
+    background: var(--blue); color: white;
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .form-submit:hover { background: var(--blue-dark); }
+  .form-note { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 12px; }
+  #form-success {
+    display: none; background: #e8f5e9; border: 1px solid #a5d6a7;
+    border-radius: 8px; padding: 16px; text-align: center;
+    color: #2e7d32; font-weight: 600; font-size: 0.9rem; margin-top: 12px;
+  }
+
+  /* REVIEWS */
+  #reviews { background: var(--white); }
+  .reviews-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
+  .rating-badge {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--navy); color: var(--cream);
+    padding: 16px 24px; border-radius: 10px;
+  }
+  .rating-num {
+    font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900;
+    color: var(--blue-light); line-height: 1;
+  }
+  .rating-stars { color: #f4c430; font-size: 1rem; }
+  .rating-count { font-size: 0.8rem; color: rgba(242,237,228,0.6); margin-top: 2px; }
+  .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .review-card {
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px;
+    transition: transform 0.2s;
+  }
+  .review-card:hover { transform: translateY(-3px); }
+  .review-stars { color: #f4c430; font-size: 0.9rem; margin-bottom: 14px; }
+  .review-text {
+    font-family: 'Source Serif 4', serif; font-size: 0.92rem; color: var(--text);
+    line-height: 1.65; margin-bottom: 20px; font-style: italic;
+  }
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+  .reviewer-avatar {
+    width: 36px; height: 36px; background: var(--blue-dark);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: white;
+  }
+  .reviewer-name { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+  .reviewer-date { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* CONTACT / LOCATION */
+  #contact { background: var(--navy); color: var(--cream); }
+  #contact .section-title { color: var(--cream); }
+  #contact .section-sub { color: rgba(242,237,228,0.6); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 60px; align-items: start; }
+  .contact-details { display: flex; flex-direction: column; gap: 28px; }
+  .contact-item { display: flex; gap: 16px; align-items: flex-start; }
+  .contact-icon {
+    width: 46px; height: 46px; background: rgba(26,111,163,0.2);
+    border: 1px solid rgba(26,111,163,0.4); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .contact-item h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(242,237,228,0.5); margin-bottom: 4px; font-weight: 600; }
+  .contact-item p, .contact-item a {
+    font-size: 1rem; font-weight: 500; color: var(--cream);
+    text-decoration: none; line-height: 1.5;
+  }
+  .contact-item a:hover { color: var(--blue-light); }
+  .map-placeholder {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(26,111,163,0.3);
+    border-radius: 16px; overflow: hidden; height: 320px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+  }
+  .map-placeholder iframe {
+    width: 100%; height: 100%; border: none;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #040f18; border-top: 1px solid rgba(26,111,163,0.2);
+    padding: 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif; font-weight: 900;
+    font-size: 1rem; color: var(--cream);
+  }
+  .footer-logo span { color: var(--blue-light); }
+  footer p { font-size: 0.8rem; color: rgba(242,237,228,0.35); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-size: 0.8rem; color: rgba(242,237,228,0.45); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--blue-light); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.7s ease forwards; }
+  .fade-up-2 { animation: fadeUp 0.7s 0.15s ease forwards; opacity: 0; }
+  .fade-up-3 { animation: fadeUp 0.7s 0.3s ease forwards; opacity: 0; }
+  .fade-up-4 { animation: fadeUp 0.7s 0.45s ease forwards; opacity: 0; }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 68px; left: 0; right: 0; background: var(--navy); padding: 20px; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .hamburger { display: flex; }
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-card { display: none; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .rustcheck-inner { grid-template-columns: 1fr; }
+    .booking-grid { grid-template-columns: 1fr; }
+    .reviews-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .reviews-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .trust-bar { gap: 20px; flex-wrap: wrap; justify-content: flex-start; padding: 16px 20px; }
+    section { padding: 60px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; padding: 30px 20px; }
+  }
+  @media (max-width: 560px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .hero-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Dave Stoddard's<br><span>Auto Service</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#rustcheck">Rustcheck</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#booking" class="nav-cta">Book Now</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge fade-up">Nepean & Kanata's Trusted Auto Shop</div>
+      <h1 class="fade-up-2">
+        Expert Auto Care<br><em>You Can Trust.</em>
+      </h1>
+      <p class="hero-sub fade-up-3">
+        Serving the Ottawa area for decades. From oil changes and brake repairs to complete rust protection — Dave Stoddard's keeps your vehicle running safe and looking great.
+      </p>
+      <div class="hero-actions fade-up-4">
+        <a href="#booking" class="btn-primary">Book an Appointment</a>
+        <a href="tel:6138287171" class="btn-outline">📞 (613) 828-7171</a>
+      </div>
+      <div class="hero-stats fade-up-4">
+        <div class="stat-card">
+          <div class="stat-num">4.8★</div>
+          <div class="stat-label">Google Rating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">116+</div>
+          <div class="stat-label">Customer Reviews</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">30+</div>
+          <div class="stat-label">Years of Experience</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Locations Served</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-card fade-up-3">
+      <div class="hero-card-header">
+        <h3>Hours of Operation</h3>
+        <p>20 Bexley Pl, Nepean, ON K2H 8W2</p>
+      </div>
+      <div class="hero-card-body">
+        <ul class="hours-list" id="hoursList"></ul>
+        <div class="call-block">
+          <div class="call-icon">📞</div>
+          <div>
+            <a href="tel:6138287171">(613) 828-7171</a>
+            <span>Call to book your appointment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item"><span>✓</span> Licensed & Certified</div>
+  <div class="trust-item"><span>✓</span> Nepean Kanata Rustcheck Dealer</div>
+  <div class="trust-item"><span>✓</span> Honest, Transparent Pricing</div>
+  <div class="trust-item"><span>✓</span> Serving Ottawa Since 1990s</div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="services-header">
+      <div class="section-label">What We Do</div>
+      <h2 class="section-title">Complete Auto Service<br>Under One Roof</h2>
+      <p class="section-sub">From routine maintenance to complex repairs — our experienced technicians handle it all with care and precision.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">❄️</div>
+        <h3>A/C Service & Repair</h3>
+        <p>Full air conditioning installation, diagnosis, and repair to keep you comfortable year-round.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔧</div>
+        <h3>Engine Repair</h3>
+        <p>Comprehensive engine diagnostics and repair — from minor tune-ups to major overhauls.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🛑</div>
+        <h3>Brake Service</h3>
+        <p>Complete brake system inspection, pad replacement, rotor resurfacing and repair.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔋</div>
+        <h3>Battery Service</h3>
+        <p>Battery testing, replacement and charging system diagnosis for all makes and models.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🛢️</div>
+        <h3>Oil Changes</h3>
+        <p>Conventional, synthetic, and blended oil changes with multi-point vehicle inspection.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">⚡</div>
+        <h3>Electrical Repair</h3>
+        <p>Full electrical system diagnostics, wiring, starters, alternators and more.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🌀</div>
+        <h3>Steering & Suspension</h3>
+        <p>Alignment, struts, shocks, tie rods and complete suspension system repairs.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔩</div>
+        <h3>Exhaust System</h3>
+        <p>Muffler, catalytic converter, exhaust pipe repair and full system replacement.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🚗</div>
+        <h3>Tires & Filters</h3>
+        <p>Tire installation, balancing, rotation, and air/cabin filter replacement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RUSTCHECK -->
+<div class="rustcheck-section" id="rustcheck">
+  <div class="rustcheck-inner">
+    <div>
+      <div class="section-label" style="color: var(--blue-light);">Rust Protection</div>
+      <h2 class="section-title">Nepean Kanata<br>Rustcheck Dealer</h2>
+      <p class="section-sub">Protect your vehicle from Ottawa's harsh winters and road salt. Our Rustcheck treatments provide long-lasting protection that saves you thousands in future repairs.</p>
+      <div class="rust-features">
+        <div class="rust-feature">
+          <div class="rust-dot">✓</div>
+          <div>
+            <h4>Annual Rust Treatment</h4>
+            <p>Penetrating oil-based formula reaches all hidden cavities to stop rust before it starts.</p>
+          </div>
+        </div>
+        <div class="rust-feature">
+          <div class="rust-dot">✓</div>
+          <div>
+            <h4>New & Used Vehicles</h4>
+            <p>Works on any make, model or age — protect your investment from day one.</p>
+          </div>
+        </div>
+        <div class="rust-feature">
+          <div class="rust-dot">✓</div>
+          <div>
+            <h4>Authorized Dealer</h4>
+            <p>Official Rustcheck dealer for Nepean and Kanata — certified and guaranteed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rustcheck-visual">
+      <div class="rust-big-icon">🛡️</div>
+      <h3>Shield Your Vehicle</h3>
+      <p>Ottawa's road salt and freeze-thaw cycles are brutal on vehicles. A single Rustcheck treatment extends your vehicle's life significantly.</p>
+      <div class="rust-badge">Book Rustcheck Treatment →</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING -->
+<section id="booking">
+  <div class="section-inner">
+    <div class="section-label">Appointments</div>
+    <h2 class="section-title">Book Your Service</h2>
+    <p class="section-sub">Schedule your appointment online and we'll confirm within one business day.</p>
+    <div class="booking-grid">
+      <div class="booking-info">
+        <h3>How it works</h3>
+        <div class="info-steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div>
+              <h4>Fill in the form</h4>
+              <p>Tell us about your vehicle and what service you need.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div>
+              <h4>We confirm your slot</h4>
+              <p>We'll call or email you to confirm the appointment time.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div>
+              <h4>Drop off your vehicle</h4>
+              <p>Come in at your scheduled time. We'll get right to work.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div>
+              <h4>Pick up & go</h4>
+              <p>We'll call when your vehicle is ready. Fast, honest service every time.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:36px; padding: 24px; background: var(--navy); border-radius:12px; color: var(--cream);">
+          <p style="font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; color:rgba(242,237,228,0.5); font-weight:600; margin-bottom:8px;">Prefer to call?</p>
+          <a href="tel:6138287171" style="font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--blue-light); text-decoration:none;">(613) 828-7171</a>
+          <p style="font-size:0.82rem; color:rgba(242,237,228,0.5); margin-top:4px;">Mon–Fri: 8:00 AM – 5:00 PM</p>
+        </div>
+      </div>
+
+      <div class="booking-form">
+        <h3>Request an Appointment</h3>
+        <p>We'll contact you to confirm your booking.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="John">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Smith">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" placeholder="(613) 555-0100">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="john@email.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Vehicle Year & Make</label>
+            <input type="text" placeholder="e.g. 2019 Honda Civic">
+          </div>
+          <div class="form-group">
+            <label>Preferred Date</label>
+            <input type="date">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Service Required</label>
+          <select>
+            <option value="">Select a service...</option>
+            <option>Oil Change</option>
+            <option>Brake Service</option>
+            <option>Engine Repair / Diagnosis</option>
+            <option>A/C Service</option>
+            <option>Electrical Repair</option>
+            <option>Steering & Suspension</option>
+            <option>Exhaust Service</option>
+            <option>Tire Service</option>
+            <option>Battery Replacement</option>
+            <option>Rustcheck Treatment</option>
+            <option>Air / Cabin Filter</option>
+            <option>General Inspection</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Additional Notes (optional)</label>
+          <textarea placeholder="Describe the issue or any additional details..."></textarea>
+        </div>
+        <button class="form-submit" onclick="submitForm()">Request Appointment →</button>
+        <p class="form-note">We typically respond within 1 business day.</p>
+        <div id="form-success">✅ Thank you! We'll be in touch to confirm your appointment.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="section-inner">
+    <div class="reviews-header">
+      <div>
+        <div class="section-label">Customer Reviews</div>
+        <h2 class="section-title">Trusted by Ottawa Drivers</h2>
+      </div>
+      <div class="rating-badge">
+        <div class="rating-num">4.8</div>
+        <div>
+          <div class="rating-stars">★★★★★</div>
+          <div class="rating-count">116 Google Reviews</div>
+        </div>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Dave and his team have been servicing my cars for over 10 years. Always honest, fair pricing, and the work is done right the first time. Wouldn't go anywhere else in Ottawa."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">MR</div>
+          <div>
+            <div class="reviewer-name">Michael R.</div>
+            <div class="reviewer-date">Nepean, ON</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Brought my car in for brakes and they did a full inspection and found a few things I wasn't aware of. Clear explanation, no pressure. Fixed it on time and on budget."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">SP</div>
+          <div>
+            <div class="reviewer-name">Sarah P.</div>
+            <div class="reviewer-date">Kanata, ON</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Best mechanic in the west end. The Rustcheck service is fantastic — my 8-year-old truck still looks great underneath. Highly recommend to anyone in the Nepean/Kanata area."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">JL</div>
+          <div>
+            <div class="reviewer-name">James L.</div>
+            <div class="reviewer-date">Kanata, ON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:40px;">
+      <a href="https://g.co/kgs/stoddards" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 28px; border:2px solid var(--border); border-radius:100px; font-size:0.85rem; font-weight:600; color:var(--navy); text-decoration:none; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">Read all 116 reviews on Google →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label" style="color:var(--blue-light)">Find Us</div>
+    <h2 class="section-title">Get In Touch</h2>
+    <p class="section-sub">Located at 20 Bexley Place in Nepean — easy access from the 417 and Carling Ave.</p>
+    <div class="contact-grid">
+      <div class="contact-details">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <h4>Address</h4>
+            <p>20 Bexley Pl<br>Nepean, ON K2H 8W2</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div>
+            <h4>Phone</h4>
+            <a href="tel:6138287171">(613) 828-7171</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <h4>Hours</h4>
+            <p>Monday – Friday: 8:00 AM – 5:00 PM<br>Saturday & Sunday: Closed</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🌐</div>
+          <div>
+            <h4>Serving</h4>
+            <p>Nepean · Kanata · Bells Corners<br>Barrhaven · Ottawa West</p>
+          </div>
+        </div>
+        <a href="#booking" class="btn-primary" style="align-self:flex-start; margin-top:8px;">Book an Appointment →</a>
+      </div>
+      <div class="map-placeholder">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2800.8!2d-75.782!3d45.354!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cce0517fc0a3abb%3A0x1!2s20+Bexley+Pl%2C+Nepean%2C+ON+K2H+8W2!5e0!3m2!1sen!2sca!4v1"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          title="Dave Stoddard's Auto Service Location">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Dave Stoddard's <span>Auto Service</span><br>
+    <span style="color:rgba(242,237,228,0.35); font-size:0.75rem; font-family:'DM Sans',sans-serif; font-weight:400;">Nepean Kanata Rustcheck</span>
+  </div>
+  <p>© 2025 Dave Stoddard's Auto Service. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#booking">Booking</a>
+    <a href="#contact">Contact</a>
+    <a href="tel:6138287171">(613) 828-7171</a>
+  </div>
+</footer>
+
+<script>
+  // Hours rendering
+  const days = [
+    { name: 'Monday', hours: '8:00 AM – 5:00 PM' },
+    { name: 'Tuesday', hours: '8:00 AM – 5:00 PM' },
+    { name: 'Wednesday', hours: '8:00 AM – 5:00 PM' },
+    { name: 'Thursday', hours: '8:00 AM – 5:00 PM' },
+    { name: 'Friday', hours: '8:00 AM – 5:00 PM' },
+    { name: 'Saturday', hours: null },
+    { name: 'Sunday', hours: null },
+  ];
+  const today = new Date().getDay(); // 0=Sun,1=Mon,...
+  const todayIdx = today === 0 ? 6 : today - 1;
+  const list = document.getElementById('hoursList');
+  days.forEach((d, i) => {
+    const li = document.createElement('li');
+    if (i === todayIdx) li.classList.add('day-today');
+    li.innerHTML = `
+      <span class="day-name">${d.name}${i === todayIdx ? '<span class="today-badge">Today</span>' : ''}</span>
+      <span class="${d.hours ? 'day-hours' : 'day-closed'}">${d.hours || 'Closed'}</span>
+    `;
+    list.appendChild(li);
+  });
+
+  // Nav toggle
+  function toggleNav() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  // Form submit
+  function submitForm() {
+    const success = document.getElementById('form-success');
+    success.style.display = 'block';
+    setTimeout(() => success.style.display = 'none', 5000);
+  }
+
+  // Scroll fade-in for service cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.service-card, .review-card').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = `opacity 0.5s ${i * 0.07}s ease, transform 0.5s ${i * 0.07}s ease`;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
