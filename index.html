@@ -885,12 +885,22 @@ async function sendMsg() {
       const reply = data.choices[0].message.content;
       chatHistory.push({role: 'assistant', content: reply});
       addBotMsg(reply.replace(/\n/g, '<br>'));
+    } else if (data.error) {
+      console.error('Groq API error:', data.error);
+      addBotMsg(`⚠️ API Error: ${data.error.message || JSON.stringify(data.error)}`);
     } else {
       addBotMsg(t.errNetwork);
     }
   } catch(e) {
     hideTyping();
-    addBotMsg(t.errNetwork);
+    console.error('Groq error:', e);
+    // Show detailed error in chat for debugging
+    const errMsg = e.message || String(e);
+    if (errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('CORS')) {
+      addBotMsg(`⚠️ CORS/Network error. The browser is blocking the request. Try opening the file via a local server instead of file:// <br><small style="opacity:0.6">${errMsg}</small>`);
+    } else {
+      addBotMsg(`⚠️ Error: ${errMsg}<br><small style="opacity:0.6">Check browser console for details.</small>`);
+    }
   }
 
   document.getElementById('chatSend').disabled = false;
