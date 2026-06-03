@@ -298,6 +298,22 @@ nav{background:rgba(11,45,69,0.97);backdrop-filter:blur(10px);border-bottom:2px 
 </div>
 
 <script>
+// ── STORAGE SHIM (localStorage fallback) ─────────────────────
+const store = {
+  get: async (key) => {
+    try { const v = localStorage.getItem(key); return v ? {value: v} : null; } catch { return null; }
+  },
+  set: async (key, value) => {
+    try { localStorage.setItem(key, value); return true; } catch { return null; }
+  },
+  list: async (prefix) => {
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+      return {keys};
+    } catch { return {keys:[]}; }
+  }
+};
+
 // ── SERVICES ──────────────────────────────────────────────────
 const SVCS=[
   {id:'oil',icon:'🛢️',en:'Oil Change',fr:"Vidange d'huile",dur:'~30 min'},
@@ -454,8 +470,8 @@ async function selDate(ds){
 async function buildSlots(ds){
   const t=T[lang];
   let booked={},blocked={};
-  try{const r=await window.storage.get('ds-bookings');if(r)booked=JSON.parse(r.value);}catch{}
-  try{const r=await window.storage.get('ds-blocked',true);if(r)blocked=JSON.parse(r.value);}catch{}
+  try{const r=await store.get('ds-bookings');if(r)booked=JSON.parse(r.value);}catch{}
+  try{const r=await store.get('ds-blocked');if(r)blocked=JSON.parse(r.value);}catch{}
   const takenSlots=booked[ds]||[];
   const blockedSlots=blocked[ds]||[];
   const dayBlocked=blocked['day-'+ds];
@@ -532,12 +548,12 @@ async function submitBooking(){
   };
   let saved=false;
   try{
-    const r=await window.storage.get('ds-bookings');
+    const r=await store.get('ds-bookings');
     const all=r?JSON.parse(r.value):{};
     if(!all[bk.date])all[bk.date]=[];
     all[bk.date].push(bk.time);
-    await window.storage.set('ds-bookings',JSON.stringify(all));
-    await window.storage.set('ds-bk-'+id,JSON.stringify(rec),true);
+    await store.set('ds-bookings',JSON.stringify(all));
+    await store.set('ds-bk-'+id, JSON.stringify(rec));
     saved=true;
   }catch(e){console.error(e);}
   btn.classList.remove('loading');btn.disabled=false;
