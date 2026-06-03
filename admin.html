@@ -264,6 +264,25 @@ tr:hover td{background:#fafbfc}
 </div>
 
 <script>
+// ── STORAGE SHIM (localStorage) ──────────────────────────────
+const store = {
+  get: async (key) => {
+    try { const v = localStorage.getItem(key); return v ? {value: v} : null; } catch { return null; }
+  },
+  set: async (key, value) => {
+    try { localStorage.setItem(key, value); return true; } catch { return null; }
+  },
+  delete: async (key) => {
+    try { localStorage.removeItem(key); return true; } catch { return null; }
+  },
+  list: async (prefix) => {
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+      return {keys};
+    } catch { return {keys:[]}; }
+  }
+};
+
 const PW='admin123';
 const SLOTS=['8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM'];
 let lang='en', allRecs=[];
@@ -358,26 +377,26 @@ function switchTab(t){
 // ── STORAGE ───────────────────────────────────────────────────
 async function getAllRecords(){
   try{
-    const keys=await window.storage.list('ds-bk-',true);
+    const keys=await store.list('ds-bk-',true);
     const recs=[];
     for(const k of (keys.keys||[])){
-      try{const r=await window.storage.get(k,true);if(r)recs.push(JSON.parse(r.value));}catch{}
+      try{const r=await store.get(k);if(r)recs.push(JSON.parse(r.value));}catch{}
     }
     return recs.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   }catch{return[];}
 }
 async function updateStatus(id,status){
-  try{const r=await window.storage.get('ds-bk-'+id,true);if(r){const d=JSON.parse(r.value);d.status=status;await window.storage.set('ds-bk-'+id,JSON.stringify(d),true);}}catch{}
+  try{const r=await store.get('ds-bk-'+id);if(r){const d=JSON.parse(r.value);d.status=status;await store.set('ds-bk-'+id, JSON.stringify(d));}}catch{}
 }
 async function deleteRecord(id,date,time){
   try{
-    await window.storage.delete('ds-bk-'+id,true);
-    const r=await window.storage.get('ds-bookings');
-    if(r){const all=JSON.parse(r.value);if(all[date]){all[date]=all[date].filter(t=>t!==time);await window.storage.set('ds-bookings',JSON.stringify(all));}}
+    await store.delete('ds-bk-'+id);
+    const r=await store.get('ds-bookings');
+    if(r){const all=JSON.parse(r.value);if(all[date]){all[date]=all[date].filter(t=>t!==time);await store.set('ds-bookings',JSON.stringify(all));}}
   }catch{}
 }
-async function getBlocked(){try{const r=await window.storage.get('ds-blocked',true);return r?JSON.parse(r.value):{};} catch{return{};}}
-async function saveBlocked(d){try{await window.storage.set('ds-blocked',JSON.stringify(d),true);}catch{}}
+async function getBlocked(){try{const r=await store.get('ds-blocked');return r?JSON.parse(r.value):{};} catch{return{};}}
+async function saveBlocked(d){try{await store.set('ds-blocked', JSON.stringify(d));}catch{}}
 
 // ── LOAD ALL ──────────────────────────────────────────────────
 async function loadAll(){
@@ -519,7 +538,7 @@ async function renderSlots(){
   const blocked=await getBlocked();
   const blockedSlots=blocked[date]||[];
   // Also show how many bookings exist on that day
-  const r=await(async()=>{try{const rv=await window.storage.get('ds-bookings');return rv?JSON.parse(rv.value):{}}catch{return{}}})();
+  const r=await(async()=>{try{const rv=await store.get('ds-bookings');return rv?JSON.parse(rv.value):{}}catch{return{}}})();
   const booked=r[date]||[];
   grid.innerHTML=SLOTS.map(slot=>{
     const isBlk=blockedSlots.includes(slot);
