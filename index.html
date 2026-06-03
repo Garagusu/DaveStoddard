@@ -706,7 +706,7 @@ applyLang();
 
 <script>
 // ── GROQ CHAT ─────────────────────────────────────────────────
-const GROQ_API_KEY = localStorage.getItem('groq_api_key') || '';
+function getGroqKey() { return localStorage.getItem('groq_api_key') || ''; }
 
 const SYSTEM_PROMPT = `You are a friendly customer service assistant for Dave Stoddard's Auto Service / Nepean Kanata Rustcheck, located at 20 Bexley Pl, Nepean, ON K2H 8W2, Ottawa, Canada.
 
@@ -845,7 +845,7 @@ async function sendMsg() {
 
   const t = CHAT_TRANSLATIONS[chatLang] || CHAT_TRANSLATIONS.en;
 
-  if (!GROQ_API_KEY) {
+  if (!getGroqKey()) {
     addUserMsg(text);
     input.value = '';
     showKeyModal();
@@ -865,7 +865,7 @@ async function sendMsg() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
+        'Authorization': `Bearer ${getGroqKey()}`
       },
       body: JSON.stringify({
         model: 'llama3-8b-8192',
@@ -978,15 +978,7 @@ function saveKey() {
   }
   localStorage.setItem('groq_api_key', key);
   closeKeyModal();
-  // Retry the last message
-  const lastUserMsg = document.querySelector('.msg.user:last-of-type .msg-bubble');
-  if (lastUserMsg) {
-    document.getElementById('chatInput').value = lastUserMsg.textContent;
-    sendMsg();
-  } else {
-    const t = CHAT_TRANSLATIONS[lang] || CHAT_TRANSLATIONS.en;
-    addBotMsg(lang === 'fr' ? '✅ Clé enregistrée ! Comment puis-je vous aider ?' : '✅ Key saved! How can I help you?');
-  }
+  addBotMsg(lang === 'fr' ? '✅ Clé enregistrée ! Comment puis-je vous aider ?' : '✅ Key saved! How can I help you?');
 }
 
 // Close on overlay click
