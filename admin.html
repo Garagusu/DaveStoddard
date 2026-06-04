@@ -735,6 +735,13 @@ function buildReviewsEditor() {
 }
 
 function loadCmsFields() {
+  // Force reflow so elements get proper dimensions
+  const panel = document.getElementById('tab-cms');
+  if (panel) {
+    panel.style.display = 'none';
+    panel.offsetHeight; // trigger reflow
+    panel.style.display = 'block';
+  }
   const biz = getCmsData('biz');
   document.getElementById('cms-phone').value = biz.phone || '';
   document.getElementById('cms-address').value = biz.address || '';
