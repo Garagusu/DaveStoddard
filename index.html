@@ -776,8 +776,13 @@ function applyLang() {
 
 function buildHours() {
   const t = LANG[currentLang];
+  // Check for CMS override
+  const cmsH = window._cmsHours;
+  const weekdayHours = cmsH ? `${cmsH.open} – ${cmsH.close}` : '8:00 AM – 5:00 PM';
+  const satHours = cmsH && cmsH.sat === 'open' ? weekdayHours : null;
+  const sunHours = cmsH && cmsH.sun === 'open' ? weekdayHours : null;
   const hoursData = [
-    {hours:'8:00 AM – 5:00 PM'},{hours:'8:00 AM – 5:00 PM'},
+    {hours:weekdayHours},{hours:weekdayHours},
     {hours:'8:00 AM – 5:00 PM'},{hours:'8:00 AM – 5:00 PM'},
     {hours:'8:00 AM – 5:00 PM'},{hours:null},{hours:null}
   ];
@@ -1174,4 +1179,107 @@ function translateCookie(lang){
   if(db)db.textContent=t?'Refuser':'Decline';
 }
 </script>
+
+<script>
+// ── CMS CONTENT READER ────────────────────────────────────────
+// Reads content saved from admin panel and applies to page
+(function applyCmsContent() {
+  function getCms(key) {
+    try { const r = localStorage.getItem('site-cms-' + key); return r ? JSON.parse(r) : null; } catch { return null; }
+  }
+
+  // Business info
+  const biz = getCms('biz');
+  if (biz) {
+    if (biz.phone) {
+      document.querySelectorAll('a[href^="tel:"]').forEach(el => {
+        el.href = 'tel:' + biz.phone.replace(/\D/g,'');
+        if (el.textContent.includes('613') || el.textContent.includes('828')) el.textContent = biz.phone;
+      });
+    }
+    if (biz.address) {
+      document.querySelectorAll('.hero-card-header p, .contact-item p').forEach((el,i) => {
+        if (el.textContent.includes('Bexley') || el.textContent.includes('Nepean')) el.textContent = biz.address;
+      });
+    }
+    if (biz.serving) {
+      const servEl = document.querySelector('[data-t="cServing"]');
+      if (servEl) {
+        const p = servEl.closest('.contact-item')?.querySelector('p:last-child');
+        if (p) p.innerHTML = biz.serving;
+      }
+    }
+  }
+
+  // Hours
+  const hrs = getCms('hours');
+  if (hrs) {
+    // Format time 08:00 → 8:00 AM
+    function fmt(t) {
+      if (!t) return '';
+      const [h, m] = t.split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+    }
+    window._cmsHours = { open: fmt(hrs.open), close: fmt(hrs.close), sat: hrs.sat, sun: hrs.sun };
+  }
+
+  // Hero
+  const hero = getCms('hero');
+  if (hero) {
+    const badge = document.querySelector('[data-t="heroBadge"]');
+    if (badge && hero.badge) badge.textContent = hero.badge;
+    const h1 = document.querySelector('[data-t="heroH1"]');
+    if (h1 && hero.title) h1.innerHTML = `${hero.title}<br><em>${hero.em || ''}</em>`;
+    const sub = document.querySelector('[data-t="heroSub"]');
+    if (sub && hero.sub) sub.textContent = hero.sub;
+  }
+
+  // About
+  const about = getCms('about');
+  if (about) {
+    const p1 = document.querySelector('[data-t="aboutP1"]');
+    const p2 = document.querySelector('[data-t="aboutP2"]');
+    if (p1 && about.p1) p1.textContent = about.p1;
+    if (p2 && about.p2) p2.textContent = about.p2;
+  }
+
+  // Services
+  const svcs = getCms('services');
+  if (svcs) {
+    const keys = ['svc1h','svc2h','svc3h','svc4h','svc5h','svc6h','svc7h','svc8h','svc9h'];
+    const descKeys = ['svc1p','svc2p','svc3p','svc4p','svc5p','svc6p','svc7p','svc8p','svc9p'];
+    svcs.forEach((s, i) => {
+      const titleEl = document.querySelector(`[data-t="${keys[i]}"]`);
+      const descEl = document.querySelector(`[data-t="${descKeys[i]}"]`);
+      if (titleEl && s.title) titleEl.textContent = s.title;
+      if (descEl && s.desc) {
+        descEl.textContent = s.desc;
+        // Update price badge next sibling
+        const priceBadge = descEl.nextElementSibling;
+        if (priceBadge && priceBadge.classList.contains('svc-price')) {
+          priceBadge.textContent = '💰 ' + s.price;
+        }
+      }
+    });
+  }
+
+  // Reviews
+  const revs = getCms('reviews');
+  if (revs) {
+    const revKeys = ['rev1','rev2','rev3'];
+    const cityKeys = ['revCity','revCity2','revCity3'];
+    const nameEls = document.querySelectorAll('.reviewer-name');
+    revs.forEach((r, i) => {
+      const textEl = document.querySelector(`[data-t="${revKeys[i]}"]`);
+      const cityEl = document.querySelector(`[data-t="${cityKeys[i]}"]`);
+      if (textEl && r.text) textEl.textContent = r.text;
+      if (cityEl && r.location) cityEl.textContent = r.location;
+      if (nameEls[i] && r.name) nameEls[i].textContent = r.name;
+    });
+  }
+})();
+</script>
+
 </body></html>
