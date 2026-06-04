@@ -281,6 +281,84 @@ tr:hover td{background:#fafbfc}
         </div>
         <div class="slot-toggle-grid" id="slotGrid"><p style="font-size:0.84rem;color:var(--muted);grid-column:1/-1">Select a date above.</p></div>
       </div>
+
+    <!-- CMS TAB -->
+    <div class="tab-panel" id="tab-cms">
+      <div class="pg-title" id="cmsTitle">Site Content</div>
+      <div class="pg-sub" id="cmsSub">Edit website text, hours, services and contact info. Changes apply instantly to the website.</div>
+
+      <div class="cms-preview-bar">
+        ℹ️ <span id="cmsPreviewNote">After saving, refresh the main website (index.html) to see changes.</span>
+      </div>
+
+      <!-- BUSINESS INFO -->
+      <div class="cms-section">
+        <h3>🏢 <span id="cmsBizTitle">Business Information</span></h3>
+        <div class="cms-desc" id="cmsBizDesc">Core business details shown across the site.</div>
+        <div class="cms-grid">
+          <div class="cms-field"><label id="lCmsPhone">Phone Number</label><input id="cms-phone" type="tel" placeholder="(613) 828-7171"></div>
+          <div class="cms-field"><label id="lCmsAddress">Address</label><input id="cms-address" type="text" placeholder="20 Bexley Pl, Nepean, ON K2H 8W2"></div>
+          <div class="cms-field"><label id="lCmsEmail">Email</label><input id="cms-email" type="email" placeholder="dave@davestoddards.ca"></div>
+          <div class="cms-field"><label id="lCmsServing">Areas Served</label><input id="cms-serving" type="text" placeholder="Nepean · Kanata · Bells Corners · Barrhaven"></div>
+        </div>
+        <div style="margin-top:14px"><button class="cms-save-btn" onclick="saveCms('biz')" id="cmsSaveBiz">Save Business Info</button></div>
+      </div>
+
+      <!-- HOURS -->
+      <div class="cms-section">
+        <h3>🕐 <span id="cmsHoursTitle">Hours of Operation</span></h3>
+        <div class="cms-desc" id="cmsHoursDesc">Set your opening and closing times.</div>
+        <div class="cms-hours-grid">
+          <div class="cms-field"><label id="lCmsHoursOpen">Weekday Opens</label><input id="cms-hours-open" type="time" value="08:00"></div>
+          <div class="cms-field"><label id="lCmsHoursClose">Weekday Closes</label><input id="cms-hours-close" type="time" value="17:00"></div>
+          <div class="cms-field"><label id="lCmsSatOpen">Saturday</label><select id="cms-sat"><option value="closed">Closed</option><option value="open">Open</option></select></div>
+          <div class="cms-field"><label id="lCmsSunOpen">Sunday</label><select id="cms-sun"><option value="closed">Closed</option><option value="open">Open</option></select></div>
+        </div>
+        <div style="margin-top:14px"><button class="cms-save-btn" onclick="saveCms('hours')" id="cmsSaveHours">Save Hours</button></div>
+      </div>
+
+      <!-- HERO -->
+      <div class="cms-section">
+        <h3>🦸 <span id="cmsHeroTitle">Hero Section</span></h3>
+        <div class="cms-desc" id="cmsHeroDesc">The main banner text visitors see first.</div>
+        <div class="cms-grid">
+          <div class="cms-field"><label id="lCmsBadge">Top Badge Text</label><input id="cms-badge" placeholder="Nepean & Kanata's Trusted Auto Shop"></div>
+          <div class="cms-field"><label id="lCmsHeroTitle">Main Title</label><input id="cms-hero-title" placeholder="Expert Auto Care"></div>
+          <div class="cms-field"><label id="lCmsHeroEm">Title Highlight (italic)</label><input id="cms-hero-em" placeholder="You Can Trust."></div>
+          <div class="cms-field" style="grid-column:1/-1"><label id="lCmsHeroSub">Subtitle</label><textarea id="cms-hero-sub" rows="2"></textarea></div>
+        </div>
+        <div style="margin-top:14px"><button class="cms-save-btn" onclick="saveCms('hero')" id="cmsSaveHero">Save Hero</button></div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="cms-section">
+        <h3>👥 <span id="cmsAboutTitle">About Us</span></h3>
+        <div class="cms-desc" id="cmsAboutDesc">The story and description of the business.</div>
+        <div class="cms-grid full">
+          <div class="cms-field"><label id="lCmsAboutP1">Paragraph 1</label><textarea id="cms-about-p1" rows="3"></textarea></div>
+          <div class="cms-field"><label id="lCmsAboutP2">Paragraph 2</label><textarea id="cms-about-p2" rows="3"></textarea></div>
+        </div>
+        <div style="margin-top:14px"><button class="cms-save-btn" onclick="saveCms('about')" id="cmsSaveAbout">Save About</button></div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="cms-section">
+        <h3>🔧 <span id="cmsSvcTitle">Services</span></h3>
+        <div class="cms-desc" id="cmsSvcDesc">Edit each service card title, description and price.</div>
+        <div class="cms-card-grid" id="svcCardsEditor"></div>
+        <div style="margin-top:16px"><button class="cms-save-btn" onclick="saveCms('services')" id="cmsSaveSvc">Save Services</button></div>
+      </div>
+
+      <!-- REVIEWS -->
+      <div class="cms-section">
+        <h3>⭐ <span id="cmsRevTitle">Customer Reviews</span></h3>
+        <div class="cms-desc" id="cmsRevDesc">The 3 reviews shown on the website.</div>
+        <div id="reviewsEditor"></div>
+        <div style="margin-top:14px"><button class="cms-save-btn" onclick="saveCms('reviews')" id="cmsSaveRev">Save Reviews</button></div>
+      </div>
+
+    </div>
+
     </div>
   </div>
 </div>
@@ -391,7 +469,7 @@ function doLogin(){
 function doLogout(){document.getElementById('loginScreen').style.display='flex';document.getElementById('dashboard').style.display='none';document.getElementById('liPw').value='';}
 
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['bookings','availability'][i]===t));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['bookings','availability','cms'][i]===t));
   document.querySelectorAll('.tab-panel').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
 }
