@@ -472,6 +472,7 @@ function switchTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['bookings','availability','cms'][i]===t));
   document.querySelectorAll('.tab-panel').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
+  if(t==='cms') setTimeout(loadCmsFields, 50);
 }
 
 // ── STORAGE ───────────────────────────────────────────────────
@@ -809,12 +810,7 @@ function saveCms(section) {
   toast(lang === 'fr' ? '✅ Contenu sauvegardé !' : '✅ Content saved! Refresh the website to see changes.', 'success');
 }
 
-// Hook into switchTab to load CMS fields when tab opens
-const _origSwitchTab = switchTab;
-window.switchTab = function(t) {
-  _origSwitchTab(t);
-  if (t === 'cms') loadCmsFields();
-};
+// switchTab already handles CMS tab loading
 
 // CMS translations
 const CMS_T = {
@@ -864,7 +860,19 @@ window.applyLang = function() {
   _origApplyLang();
   const t = CMS_T[lang];
   if (!t) return;
-  Object.keys(t).forEach(k => { const el = document.getElementById(k); if(el) el.innerHTML = t[k]; });
+  // Only update span/label/button elements, never containers with forms inside
+  const safeIds = ['tabCms','cmsPreviewNote',
+    'cmsBizTitle','lCmsPhone','lCmsAddress','lCmsEmail','lCmsServing','cmsSaveBiz',
+    'cmsHoursTitle','lCmsHoursOpen','lCmsHoursClose','lCmsSatOpen','lCmsSunOpen','cmsSaveHours',
+    'cmsHeroTitle','lCmsBadge','lCmsHeroTitle','lCmsHeroEm','lCmsHeroSub','cmsSaveHero',
+    'cmsAboutTitle','lCmsAboutP1','lCmsAboutP2','cmsSaveAbout',
+    'cmsSvcTitle','cmsSaveSvc',
+    'cmsRevTitle','cmsSaveRev'
+  ];
+  safeIds.forEach(k => {
+    const el = document.getElementById(k);
+    if(el && t[k]) el.innerHTML = t[k];
+  });
 };
 
 </script>
