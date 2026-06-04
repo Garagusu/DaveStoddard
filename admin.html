@@ -474,8 +474,12 @@ function doLogout(){document.getElementById('loginScreen').style.display='flex';
 
 function switchTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['bookings','availability','cms'][i]===t));
-  document.querySelectorAll('.tab-panel').forEach(el=>el.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(el=>{
+    el.classList.remove('active');
+    el.style.display=''; // clear any inline styles
+  });
+  const active = document.getElementById('tab-'+t);
+  if(active) active.classList.add('active');
   if(t==='cms') setTimeout(loadCmsFields, 50);
 }
 
@@ -741,13 +745,6 @@ function buildReviewsEditor() {
 }
 
 function loadCmsFields() {
-  // Force reflow so elements get proper dimensions
-  const panel = document.getElementById('tab-cms');
-  if (panel) {
-    panel.style.display = 'none';
-    panel.offsetHeight; // trigger reflow
-    panel.style.display = 'block';
-  }
   const biz = getCmsData('biz');
   document.getElementById('cms-phone').value = biz.phone || '';
   document.getElementById('cms-address').value = biz.address || '';
