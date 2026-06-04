@@ -133,6 +133,27 @@ tr:hover td{background:#fafbfc}
   .main{padding:20px 12px}
   table{font-size:0.78rem} th,td{padding:9px 10px}
 }
+
+  /* CMS */
+  .cms-section{background:white;border:1px solid var(--border);border-radius:13px;padding:26px;margin-bottom:22px;}
+  .cms-section h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .cms-section .cms-desc{font-size:0.82rem;color:var(--muted);margin-bottom:18px;}
+  .cms-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .cms-grid.full{grid-template-columns:1fr;}
+  .cms-field{display:flex;flex-direction:column;gap:5px;}
+  .cms-field label{font-size:0.75rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;}
+  .cms-field input,.cms-field textarea,.cms-field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.87rem;color:var(--text);background:white;outline:none;transition:border-color .2s;}
+  .cms-field input:focus,.cms-field textarea:focus{border-color:var(--blue);}
+  .cms-field textarea{resize:vertical;min-height:70px;line-height:1.5;}
+  .cms-save-btn{padding:10px 26px;background:var(--blue);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:background .2s;}
+  .cms-save-btn:hover{background:var(--blue-dark);}
+  .cms-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .cms-card{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .cms-card h4{font-size:0.82rem;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .cms-hours-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .cms-preview-bar{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:0.8rem;color:#1e40af;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  @media(max-width:768px){.cms-grid{grid-template-columns:1fr;}.cms-card-grid{grid-template-columns:1fr;}.cms-hours-grid{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body>
@@ -179,6 +200,7 @@ tr:hover td{background:#fafbfc}
     <div class="tabs">
       <button class="tab active" onclick="switchTab('bookings')" id="tabBookings">📋 Bookings</button>
       <button class="tab" onclick="switchTab('availability')" id="tabAvail">🗓 Availability</button>
+      <button class="tab" onclick="switchTab('cms')" id="tabCms">✏️ Site Content</button>
     </div>
 
     <!-- BOOKINGS TAB -->
@@ -560,5 +582,212 @@ async function toggleSlot(date,slot){
 }
 
 applyLang();
+
+// ── CMS ───────────────────────────────────────────────────────
+const DEFAULT_CONTENT = {
+  biz: {
+    phone: '(613) 828-7171',
+    address: '20 Bexley Pl, Nepean, ON K2H 8W2',
+    email: 'dave@davestoddards.ca',
+    serving: 'Nepean · Kanata · Bells Corners · Barrhaven · Ottawa West'
+  },
+  hours: { open: '08:00', close: '17:00', sat: 'closed', sun: 'closed' },
+  hero: {
+    badge: "Nepean & Kanata's Trusted Auto Shop",
+    title: 'Expert Auto Care',
+    em: 'You Can Trust.',
+    sub: "Serving the Ottawa area for decades. From oil changes and brake repairs to complete rust protection — Dave Stoddard's keeps your vehicle running safe."
+  },
+  about: {
+    p1: "Dave Stoddard and Mark Powell have been keeping Ottawa drivers safe on the road for over 30 years. What started as a neighbourhood garage in Nepean has grown into one of the most trusted auto service shops in Ottawa West.",
+    p2: "We're not a dealership. We're your neighbours — we give you straight answers and never recommend a repair you don't need. That's why our customers keep coming back."
+  },
+  services: [
+    {icon:'❄️', title:'A/C Service & Repair', desc:'Full air conditioning installation, diagnosis and repair to keep you comfortable year-round.', price:'From ~$149'},
+    {icon:'🔧', title:'Engine Repair', desc:'Comprehensive engine diagnostics and repair — from minor tune-ups to major overhauls.', price:'Quote on inspection'},
+    {icon:'🛑', title:'Brake Service', desc:'Complete brake inspection, pad replacement, rotor resurfacing and hydraulic repair.', price:'From ~$129'},
+    {icon:'🔋', title:'Battery Service', desc:'Battery testing, replacement and charging system diagnosis for all makes and models.', price:'From ~$89'},
+    {icon:'🛢️', title:'Oil Changes', desc:'Conventional, synthetic and blended oil changes with multi-point vehicle inspection.', price:'From ~$59'},
+    {icon:'⚡', title:'Electrical Repair', desc:'Full electrical diagnostics, wiring, starters, alternators and more.', price:'Quote on inspection'},
+    {icon:'🌀', title:'Steering & Suspension', desc:'Alignment, struts, shocks, tie rods and complete suspension system repairs.', price:'From ~$149'},
+    {icon:'🔩', title:'Exhaust System', desc:'Muffler, catalytic converter, exhaust pipe repair and full system replacement.', price:'From ~$99'},
+    {icon:'🚗', title:'Tires & Filters', desc:'Tire installation, balancing, rotation, and air/cabin filter replacement.', price:'From ~$25/tire'},
+  ],
+  reviews: [
+    {text:'"Dave and his team have been servicing my cars for over 10 years. Always honest, fair pricing, and the work is done right the first time."', name:'Michael R.', location:'Nepean, ON'},
+    {text:'"Brought my car in for brakes and they found a few extra things. Clear explanation, no pressure. Fixed everything on time and on budget."', name:'Sarah P.', location:'Kanata, ON'},
+    {text:'"Best mechanic in the west end. The Rustcheck service is fantastic — my 8-year-old truck still looks great underneath."', name:'James L.', location:'Kanata, ON'},
+  ]
+};
+
+function getCmsData(key) {
+  try {
+    const r = localStorage.getItem('cms-' + key);
+    return r ? JSON.parse(r) : DEFAULT_CONTENT[key];
+  } catch { return DEFAULT_CONTENT[key]; }
+}
+
+function setCmsData(key, data) {
+  localStorage.setItem('cms-' + key, JSON.stringify(data));
+  // Also write to shared key so index.html can read it
+  localStorage.setItem('site-cms-' + key, JSON.stringify(data));
+}
+
+function buildSvcEditor() {
+  const svcs = getCmsData('services');
+  document.getElementById('svcCardsEditor').innerHTML = svcs.map((s, i) => `
+    <div class="cms-card">
+      <h4>${s.icon} Service ${i+1}</h4>
+      <div class="cms-field" style="margin-bottom:8px"><label>Title</label><input id="svc-title-${i}" value="${s.title}"></div>
+      <div class="cms-field" style="margin-bottom:8px"><label>Description</label><textarea id="svc-desc-${i}" rows="2">${s.desc}</textarea></div>
+      <div class="cms-field"><label>Price</label><input id="svc-price-${i}" value="${s.price}" placeholder="From ~$99"></div>
+    </div>`).join('');
+}
+
+function buildReviewsEditor() {
+  const revs = getCmsData('reviews');
+  document.getElementById('reviewsEditor').innerHTML = revs.map((r, i) => `
+    <div class="cms-card" style="margin-bottom:12px">
+      <h4>⭐ Review ${i+1}</h4>
+      <div class="cms-field" style="margin-bottom:8px"><label>Review Text</label><textarea id="rev-text-${i}" rows="3">${r.text}</textarea></div>
+      <div class="cms-grid">
+        <div class="cms-field"><label>Name</label><input id="rev-name-${i}" value="${r.name}"></div>
+        <div class="cms-field"><label>Location</label><input id="rev-loc-${i}" value="${r.location}"></div>
+      </div>
+    </div>`).join('');
+}
+
+function loadCmsFields() {
+  const biz = getCmsData('biz');
+  document.getElementById('cms-phone').value = biz.phone || '';
+  document.getElementById('cms-address').value = biz.address || '';
+  document.getElementById('cms-email').value = biz.email || '';
+  document.getElementById('cms-serving').value = biz.serving || '';
+
+  const hrs = getCmsData('hours');
+  document.getElementById('cms-hours-open').value = hrs.open || '08:00';
+  document.getElementById('cms-hours-close').value = hrs.close || '17:00';
+  document.getElementById('cms-sat').value = hrs.sat || 'closed';
+  document.getElementById('cms-sun').value = hrs.sun || 'closed';
+
+  const hero = getCmsData('hero');
+  document.getElementById('cms-badge').value = hero.badge || '';
+  document.getElementById('cms-hero-title').value = hero.title || '';
+  document.getElementById('cms-hero-em').value = hero.em || '';
+  document.getElementById('cms-hero-sub').value = hero.sub || '';
+
+  const about = getCmsData('about');
+  document.getElementById('cms-about-p1').value = about.p1 || '';
+  document.getElementById('cms-about-p2').value = about.p2 || '';
+
+  buildSvcEditor();
+  buildReviewsEditor();
+}
+
+function saveCms(section) {
+  const t = T[lang];
+  if (section === 'biz') {
+    setCmsData('biz', {
+      phone: document.getElementById('cms-phone').value,
+      address: document.getElementById('cms-address').value,
+      email: document.getElementById('cms-email').value,
+      serving: document.getElementById('cms-serving').value,
+    });
+  } else if (section === 'hours') {
+    setCmsData('hours', {
+      open: document.getElementById('cms-hours-open').value,
+      close: document.getElementById('cms-hours-close').value,
+      sat: document.getElementById('cms-sat').value,
+      sun: document.getElementById('cms-sun').value,
+    });
+  } else if (section === 'hero') {
+    setCmsData('hero', {
+      badge: document.getElementById('cms-badge').value,
+      title: document.getElementById('cms-hero-title').value,
+      em: document.getElementById('cms-hero-em').value,
+      sub: document.getElementById('cms-hero-sub').value,
+    });
+  } else if (section === 'about') {
+    setCmsData('about', {
+      p1: document.getElementById('cms-about-p1').value,
+      p2: document.getElementById('cms-about-p2').value,
+    });
+  } else if (section === 'services') {
+    const svcs = getCmsData('services').map((s, i) => ({
+      icon: s.icon,
+      title: document.getElementById(`svc-title-${i}`).value,
+      desc: document.getElementById(`svc-desc-${i}`).value,
+      price: document.getElementById(`svc-price-${i}`).value,
+    }));
+    setCmsData('services', svcs);
+  } else if (section === 'reviews') {
+    const revs = [0,1,2].map(i => ({
+      text: document.getElementById(`rev-text-${i}`).value,
+      name: document.getElementById(`rev-name-${i}`).value,
+      location: document.getElementById(`rev-loc-${i}`).value,
+    }));
+    setCmsData('reviews', revs);
+  }
+  toast(lang === 'fr' ? '✅ Contenu sauvegardé !' : '✅ Content saved! Refresh the website to see changes.', 'success');
+}
+
+// Hook into switchTab to load CMS fields when tab opens
+const _origSwitchTab = switchTab;
+window.switchTab = function(t) {
+  _origSwitchTab(t);
+  if (t === 'cms') loadCmsFields();
+};
+
+// CMS translations
+const CMS_T = {
+  en: {
+    tabCms:'✏️ Site Content', cmsTitle:'Site Content', cmsSub:'Edit website text, hours, services and contact info. Changes apply instantly to the website.',
+    cmsPreviewNote:'After saving, refresh the main website (index.html) to see changes.',
+    cmsBizTitle:'Business Information', cmsBizDesc:'Core business details shown across the site.',
+    lCmsPhone:'Phone Number', lCmsAddress:'Address', lCmsEmail:'Email', lCmsServing:'Areas Served',
+    cmsSaveBiz:'Save Business Info',
+    cmsHoursTitle:'Hours of Operation', cmsHoursDesc:'Set your opening and closing times.',
+    lCmsHoursOpen:'Weekday Opens', lCmsHoursClose:'Weekday Closes', lCmsSatOpen:'Saturday', lCmsSunOpen:'Sunday',
+    cmsSaveHours:'Save Hours',
+    cmsHeroTitle:'Hero Section', cmsHeroDesc:'The main banner text visitors see first.',
+    lCmsBadge:'Top Badge Text', lCmsHeroTitle:'Main Title', lCmsHeroEm:'Title Highlight', lCmsHeroSub:'Subtitle Text',
+    cmsSaveHero:'Save Hero',
+    cmsAboutTitle:'About Us', cmsAboutDesc:'The story and description of the business.',
+    lCmsAboutP1:'Paragraph 1', lCmsAboutP2:'Paragraph 2', cmsSaveAbout:'Save About',
+    cmsSvcTitle:'Services', cmsSvcDesc:'Edit each service card title, description and price.',
+    cmsSaveSvc:'Save Services',
+    cmsRevTitle:'Customer Reviews', cmsRevDesc:'The 3 reviews shown on the website.',
+    cmsSaveRev:'Save Reviews',
+  },
+  fr: {
+    tabCms:`✏️ Contenu du site`, cmsTitle:`Contenu du site`, cmsSub:`Modifiez les textes, heures, services et coordonnées. Les changements s'appliquent au site web.`,
+    cmsPreviewNote:`Après sauvegarde, actualisez le site principal (index.html) pour voir les changements.`,
+    cmsBizTitle:`Informations de l'entreprise`, cmsBizDesc:`Coordonnées principales affichées sur le site.`,
+    lCmsPhone:`Numéro de téléphone`, lCmsAddress:`Adresse`, lCmsEmail:`Courriel`, lCmsServing:`Zones desservies`,
+    cmsSaveBiz:`Enregistrer`,
+    cmsHoursTitle:`Heures d'ouverture`, cmsHoursDesc:`Définissez vos heures d'ouverture et de fermeture.`,
+    lCmsHoursOpen:`Ouverture (semaine)`, lCmsHoursClose:`Fermeture (semaine)`, lCmsSatOpen:`Samedi`, lCmsSunOpen:`Dimanche`,
+    cmsSaveHours:`Enregistrer les heures`,
+    cmsHeroTitle:`Section principale`, cmsHeroDesc:`Le texte de la bannière principale.`,
+    lCmsBadge:`Texte du badge`, lCmsHeroTitle:`Titre principal`, lCmsHeroEm:`Titre mis en valeur`, lCmsHeroSub:`Sous-titre`,
+    cmsSaveHero:`Enregistrer`,
+    cmsAboutTitle:`À propos`, cmsAboutDesc:`L'histoire et la description de l'entreprise.`,
+    lCmsAboutP1:`Paragraphe 1`, lCmsAboutP2:`Paragraphe 2`, cmsSaveAbout:`Enregistrer`,
+    cmsSvcTitle:`Services`, cmsSvcDesc:`Modifiez le titre, la description et le prix de chaque service.`,
+    cmsSaveSvc:`Enregistrer les services`,
+    cmsRevTitle:`Avis clients`, cmsRevDesc:`Les 3 avis affichés sur le site web.`,
+    cmsSaveRev:`Enregistrer les avis`,
+  }
+};
+
+// Extend applyLang to include CMS translations
+const _origApplyLang = applyLang;
+window.applyLang = function() {
+  _origApplyLang();
+  const t = CMS_T[lang];
+  if (!t) return;
+  Object.keys(t).forEach(k => { const el = document.getElementById(k); if(el) el.innerHTML = t[k]; });
+};
+
 </script>
 </body></html>
