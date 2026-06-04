@@ -33,7 +33,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .login-hint{font-size:0.75rem;color:var(--muted);margin-top:12px;opacity:0.7}
 
 /* DASHBOARD */
-#dashboard{display:none}
+#dashboard{position:fixed;left:-9999px;top:-9999px;width:100vw;pointer-events:none;}
 header{background:var(--navy);padding:0 32px;height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--blue)}
 header img{height:46px}
 .hdr-right{display:flex;align-items:center;gap:12px}
@@ -456,7 +456,10 @@ function doLogin(){
   const pwEl=document.getElementById('liPw');
   if(pw===PW){
     document.getElementById('loginScreen').style.display='none';
-    document.getElementById('dashboard').style.display='block';
+    document.getElementById('dashboard').style.position='relative';
+    document.getElementById('dashboard').style.left='0';
+    document.getElementById('dashboard').style.top='0';
+    document.getElementById('dashboard').style.pointerEvents='auto';
     applyLang();loadAll();
   } else {
     pwEl.classList.add('invalid');
@@ -464,7 +467,11 @@ function doLogin(){
     setTimeout(()=>pwEl.classList.remove('invalid'),600);
   }
 }
-function doLogout(){document.getElementById('loginScreen').style.display='flex';document.getElementById('dashboard').style.display='none';document.getElementById('liPw').value='';}
+function doLogout(){document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('dashboard').style.position='fixed';
+  document.getElementById('dashboard').style.left='-9999px';
+  document.getElementById('dashboard').style.top='-9999px';
+  document.getElementById('dashboard').style.pointerEvents='none';document.getElementById('liPw').value='';}
 
 function switchTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['bookings','availability','cms'][i]===t));
